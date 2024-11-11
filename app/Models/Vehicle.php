@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -12,10 +11,11 @@ class Vehicle extends Model
     protected $fillable = [
         'brand',
         'model',
+        'vin',
         'production_year',
         'license_plate',
-        'insurance_expiry_date',
-        'inspection_date',
+        'insurance_expiry',
+        'inspection_due',
     ];
 
     public function mileage(): HasMany
