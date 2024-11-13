@@ -1,6 +1,9 @@
 <template>
-    <div>
-        <h1 class="text-2xl font-bold mb-4">Lista Pojazdów</h1>
+    <Layout>
+        <template #header>
+            <h1 class="text-xl">Lista pojazdów</h1>
+        </template>
+
         <button @click="openModal(false)" class="btn btn-primary mb-2">Dodaj Pojazd</button>
 
         <table class="w-full border-collapse border">
@@ -68,12 +71,13 @@
                 </form>
             </div>
         </div>
-    </div>
+    </Layout>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { usePage, useForm, router } from '@inertiajs/vue3';
+import Layout from "@/Pages/Layout.vue";
 
 const { props } = usePage();
 const vehicles = ref(props.vehicles || []);
@@ -116,32 +120,33 @@ const closeModal = () => {
 
 const submitForm = () => {
     if (isEditMode.value) {
-        form.put(`/vehicles/${form.vehicle_id}`, {
-            onSuccess: () => {
-                router.visit(route('vehicles.index', {vehicles: props.vehicles}), {
-                    preserveScroll: true
-                });
-                closeModal();
-            },
+        axios.put(`/vehicles/${form.vehicle_id}`, form).then(response => {
+            router.visit(route('vehicles.index'), {
+                preserveScroll: true
+            });
+            closeModal();
+        }).catch(error => {
+            console.error(error);
         });
     } else {
-        form.post('/vehicles', {
-            onSuccess: () => {
-                router.visit(route('vehicles.index', {vehicles: props.vehicles}), {
-                    preserveScroll: true
-                });
-                closeModal();
-            },
+        axios.post('/vehicles', form).then(response => {
+            router.visit(route('vehicles.index'), {
+                preserveScroll: true
+            });
+            closeModal();
+        }).catch(error => {
+            console.error(error);
         });
     }
 };
 
 const deleteVehicle = (id) => {
     if (confirm('Czy na pewno chcesz usunąć ten pojazd?')) {
-        router.delete(`/vehicles/${id}`, {
-            onSuccess: () => {
-                alert('Pojazd został usunięty.');
-            },
+        axios.delete(`/vehicles/${id}`)
+            .then(response => {
+                router.visit(route('vehicles.index'));
+            }).catch(error => {
+            console.error(error);
         });
     }
 };

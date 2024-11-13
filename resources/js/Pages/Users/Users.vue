@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <h1 class="text-2xl font-bold mb-4">Lista Użytkowników</h1>
+    <Layout>
+        <template #header><h1 class="text-xl">Lista Użytkowników</h1></template>
         <button @click="openModal(false)" class="btn btn-primary mb-2">Dodaj Użytkownika</button>
 
         <table class="w-full border-collapse border">
@@ -54,12 +54,13 @@
                 </form>
             </div>
         </div>
-    </div>
+    </Layout>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { usePage, useForm, router } from '@inertiajs/vue3';
+import Layout from "@/Pages/Layout.vue";
 
 const { props } = usePage();
 const users = ref(props.users || []);

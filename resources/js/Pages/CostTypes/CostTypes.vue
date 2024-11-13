@@ -1,6 +1,8 @@
 <template>
-    <div>
-        <h1 class="text-2xl font-bold mb-4">Rodzaje kosztów</h1>
+    <Layout>
+        <template #header>
+            <h1 class="text-xl">Rodzaje kosztów</h1>
+        </template>
         <button @click="openModal(false)" class="btn btn-primary mb-2">Dodaj koszt</button>
 
         <table class="w-full border-collapse border">
@@ -35,12 +37,13 @@
                 </form>
             </div>
         </div>
-    </div>
+    </Layout>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { usePage, useForm, router } from '@inertiajs/vue3';
+import Layout from "@/Pages/Layout.vue";
 
 const { props } = usePage();
 const costTypes = ref(props.costTypes || []);
@@ -71,34 +74,29 @@ const closeModal = () => {
 
 const submitForm = () => {
     if (isEditMode.value) {
-        form.put(`/cost-types/${form.cost_type_id}`, {
-            onSuccess: () => {
-                router.visit(route('cost-types.index'), {
-                    preserveScroll: true
-                });
-                closeModal();
-            },
+        axios.put(`/cost-types/${form.cost_type_id}`, form).then(response => {
+            router.visit(route('cost-types.index'));
+            closeModal();
+        }).catch(error => {
+            console.error(error);
         });
     } else {
-        form.post('/cost-types', {
-            onSuccess: () => {
-                router.visit(route('cost-types.index'), {
-                    preserveScroll: true
-                });
-                closeModal();
-            },
+        axios.post(`/cost-types`, form).then(response => {
+            router.visit(route('cost-types.index'));
+            closeModal();
+        }).catch(error => {
+            console.error(error);
         });
     }
 };
 
 const deleteCost = (id) => {
     if (confirm('Czy na pewno chcesz usunąć ten koszt?')) {
-        router.delete(`/cost-types/${id}`, {
-            onSuccess: () => {
-                router.visit(route('cost-types.index'), {
-                    preserveScroll: true
-                });
-            },
+        axios.delete(`/cost-types/${id}`)
+            .then(response => {
+                router.visit(route('cost-types.index'));
+            }).catch(error => {
+            console.error(error);
         });
     }
 };

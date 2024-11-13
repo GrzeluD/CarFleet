@@ -20,9 +20,12 @@ class CostTypeController extends Controller
             'cost_type_name' => 'required|string|max:255',
         ]);
 
-        CostType::create($validatedData);
+        $costType = CostType::create($validatedData);
 
-        return redirect()->route('cost-types.index')->with('success', 'Typ kosztu został dodany.');
+        return response()->json([
+            'message' => 'Typ kosztu został dodany.',
+            'costType' => $costType,
+        ], 201);
     }
 
     public function update(Request $request, string $id)
@@ -34,7 +37,10 @@ class CostTypeController extends Controller
         $costType = CostType::findOrFail($id);
         $costType->update($validatedData);
 
-        return redirect()->route('cost-types.index')->with('success', 'Typ kosztu został zaktualizowany.');
+        return response()->json([
+            'message' => 'Typ kosztu został zaktualizowany.',
+            'costType' => $costType,
+        ], 200);
     }
 
     public function destroy(string $id)
@@ -42,6 +48,8 @@ class CostTypeController extends Controller
         $costType = CostType::findOrFail($id);
         $costType->delete();
 
-        return redirect()->route('cost-types.index')->with('success', 'Typ kosztu został usunięty.');
+        return response()->json([
+            'message' => 'Typ kosztu został usunięty.',
+        ], 200);
     }
 }

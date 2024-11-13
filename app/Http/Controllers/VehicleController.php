@@ -26,9 +26,12 @@ class VehicleController extends Controller
             'inspection_due' => 'required|date',
         ]);
 
-        Vehicle::create($validatedData);
+        $vehicle = Vehicle::create($validatedData);
 
-        return redirect()->route('vehicles.index')->with('success', 'Pojazd został dodany pomyślnie.');
+        return response()->json([
+            'message' => 'Pojazd został dodany.',
+            'vehicle' => $vehicle,
+        ], 200);
     }
 
     public function update(Request $request, string $id)
@@ -46,7 +49,10 @@ class VehicleController extends Controller
 
         $vehicle->update($validatedData);
 
-        return redirect()->route('vehicles.index')->with('success', 'Pojazd został zaktualizowany pomyślnie.');
+        return response()->json([
+            'message' => 'Pojazd został zaktualizowany.',
+            'vehicle' => $vehicle,
+        ], 200);
     }
 
     public function destroy(string $id)
@@ -54,6 +60,8 @@ class VehicleController extends Controller
         $vehicle = Vehicle::findOrFail($id);
         $vehicle->delete();
 
-        return redirect()->route('vehicles.index')->with('success', 'Pojazd został usunięty pomyślnie.');
+        return response()->json([
+            'message' => 'Pojazd został usunięty.',
+        ], 200);
     }
 }

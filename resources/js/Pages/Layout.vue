@@ -1,39 +1,32 @@
-<script setup>
-import { ref } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
-
-const showingNavigationDropdown = ref(false);
-</script>
-
 <template>
     <div>
         <div class="min-h-screen bg-gray-100">
-            <nav class="bg-white border-b border-gray-100">
+            <nav class="bg-white border-b border-gray-100 ">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
                         <div class="flex">
                             <div class="shrink-0 flex items-center">
-                                <Link :href="route('dashboard')">
-                                    <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
-                                    />
+                                <Link :href="route('vehicles.index')">
+                                    <span class="font-bold text-blue-900">Carfleet</span>
                                 </Link>
                             </div>
-
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
+                                <NavLink :href="route('vehicles.index')" :active="route().current('vehicles.index')">
+                                    Lista pojazdów
+                                </NavLink>
+                                <NavLink :href="route('vehicle-costs.index')" :active="route().current('vehicle-costs.index')">
+                                    Lista kosztów
+                                </NavLink>
+                                <NavLink :href="route('cost-types.index')" :active="route().current('cost-types.index')">
+                                    Rodzaje kosztów
+                                </NavLink>
+                                <NavLink :href="route('users.index')" :active="route().current('users.index')">
+                                    Użytkownicy
                                 </NavLink>
                             </div>
                         </div>
 
                         <div class="hidden sm:flex sm:items-center sm:ms-6">
-                            <!-- Settings Dropdown -->
                             <div class="ms-3 relative">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
@@ -52,7 +45,7 @@ const showingNavigationDropdown = ref(false);
                                                 >
                                                     <path
                                                         fill-rule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a 1 1 0 01-1.414 0l-4-4a 1 1 0 010-1.414z"
                                                         clip-rule="evenodd"
                                                     />
                                                 </svg>
@@ -61,16 +54,13 @@ const showingNavigationDropdown = ref(false);
                                     </template>
 
                                     <template #content>
-                                        <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink>
-                                        <DropdownLink :href="route('logout')" method="post" as="button">
-                                            Log Out
-                                        </DropdownLink>
+                                        <DropdownLink :href="route('profile.edit')">Profil</DropdownLink>
+                                        <DropdownLink :href="route('logout')" method="post" as="button">Wyloguj</DropdownLink>
                                     </template>
                                 </Dropdown>
                             </div>
                         </div>
 
-                        <!-- Hamburger -->
                         <div class="-me-2 flex items-center sm:hidden">
                             <button
                                 @click="showingNavigationDropdown = !showingNavigationDropdown"
@@ -103,47 +93,57 @@ const showingNavigationDropdown = ref(false);
                     </div>
                 </div>
 
-                <!-- Responsive Navigation Menu -->
-                <div
-                    :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"
-                    class="sm:hidden"
-                >
-                    <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            Dashboard
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <!-- Responsive Settings Options -->
-                    <div class="pt-4 pb-1 border-t border-gray-200">
-                        <div class="px-4">
-                            <div class="font-medium text-base text-gray-800">
-                                {{ $page.props.auth.user.name }}
-                            </div>
-                            <div class="font-medium text-sm text-gray-500">{{ $page.props.auth.user.email }}</div>
-                        </div>
-
-                        <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('profile.edit')"> Profile </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('logout')" method="post" as="button">
-                                Log Out
+                <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden absolute top-[65px] bg-white w-full">
+                    <div class="h-full w-full scroll-auto">
+                        <div class="pt-2 pb-3 space-y-1">
+                            <ResponsiveNavLink :href="route('vehicles.index')" :active="route().current('vehicles.index')">
+                                Lista pojazdów
                             </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('vehicle-costs.index')" :active="route().current('vehicle-costs.index')">
+                                Lista kosztów
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('cost-types.index')" :active="route().current('cost-types.index')">
+                                Rodzaje kosztów
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('users.index')" :active="route().current('users.index')">
+                                Użytkownicy
+                            </ResponsiveNavLink>
+                        </div>
+                        <div class="pt-4 pb-1 border-t border-gray-200">
+                            <div class="px-4">
+                                <div class="font-medium text-base text-gray-800">{{ $page.props.auth.user.name }}</div>
+                                <div class="font-medium text-sm text-gray-500">{{ $page.props.auth.user.email }}</div>
+                            </div>
+
+                            <div class="mt-3 space-y-1">
+                                <ResponsiveNavLink :href="route('profile.edit')">Profil</ResponsiveNavLink>
+                                <ResponsiveNavLink :href="route('logout')" method="post" as="button">Wyloguj</ResponsiveNavLink>
+                            </div>
                         </div>
                     </div>
                 </div>
             </nav>
 
-            <!-- Page Heading -->
-            <header class="bg-white shadow" v-if="$slots.header">
+            <header class="bg-white" v-if="$slots.header">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     <slot name="header" />
                 </div>
             </header>
 
-            <!-- Page Content -->
             <main>
                 <slot />
             </main>
         </div>
     </div>
 </template>
+
+<script setup>
+import { ref } from 'vue';
+import Dropdown from '@/Components/Dropdown.vue';
+import DropdownLink from '@/Components/DropdownLink.vue';
+import NavLink from '@/Components/NavLink.vue';
+import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import { Link } from '@inertiajs/vue3';
+
+const showingNavigationDropdown = ref(false);
+</script>

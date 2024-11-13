@@ -16,7 +16,8 @@ class VehicleCost extends Model
         'amount_gross',
         'vat_rate',
         'amount_net',
-        'vat_amount'
+        'vat_amount',
+        'invoice_path'
     ];
 
     public function vehicle(): BelongsTo
