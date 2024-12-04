@@ -4,6 +4,38 @@
             <h1 class="text-xl">Lista kosztów</h1>
         </template>
 
+        <div class="mb-4 flex space-x-4">
+            <div>
+                <label for="filterStartDate">Od</label>
+                <input v-model="filterStartDate" type="date" id="filterStartDate" class="input" />
+            </div>
+            <div>
+                <label for="filterEndDate">Do</label>
+                <input v-model="filterEndDate" type="date" id="filterEndDate" class="input" />
+            </div>
+            <div>
+                <h3>Wybierz pojazdy:</h3>
+                <div v-for="vehicle in vehicles" :key="vehicle.vehicle_id">
+                    <label>
+                        <input type="checkbox" :value="vehicle.vehicle_id" v-model="filterVehicleIds" />
+                        {{ vehicle.brand }} - {{ vehicle.license_plate }}
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <h3>Wybierz typy kosztów:</h3>
+                <div v-for="costType in costTypes" :key="costType.cost_type_id">
+                    <label>
+                        <input type="checkbox" :value="costType.cost_type_id" v-model="filterCostTypeIds" />
+                        {{ costType.cost_type_name }}
+                    </label>
+                </div>
+            </div>
+            <button @click="applyFilters" class="btn btn-primary">Filtruj</button>
+            <button @click="resetFilters" class="btn btn-secondary">Resetuj</button>
+        </div>
+
         <button @click="openModal(false)" class="btn btn-primary mb-2">Dodaj Koszt</button>
 
         <table class="w-full border-collapse border">
@@ -25,8 +57,8 @@
                 <td class="border p-2">
                     {{ getCostTypeName(cost.cost_type_id) }}
                 </td>
-                <td class="border p-2">{{ cost.amount_gross }}</td>
-                <td class="border p-2">{{ cost.date.split(' ')[0] }}</td>
+                <td class="border p-2">{{ Number(cost.amount_gross).toFixed(2) }} zł</td>
+                <td class="border p-2">{{ formatDate(cost.date) }}</td>
                 <td class="border p-2">
                     <button v-if="cost.invoice_path" @click="previewInvoice(cost.invoice_path)" class="btn btn-sm btn-info">Podgląd</button>
                     <span v-else>Brak faktury</span>
@@ -38,6 +70,23 @@
             </tr>
             </tbody>
         </table>
+
+<!--        <div class="mt-4 flex justify-center space-x-2">-->
+<!--            <button-->
+<!--                v-if="vehicleCosts.prev_page_url"-->
+<!--                @click="fetchPage(vehicleCosts.prev_page_url)"-->
+<!--                class="btn btn-secondary"-->
+<!--            >-->
+<!--                Poprzednia-->
+<!--            </button>-->
+<!--            <button-->
+<!--                v-if="vehicleCosts.next_page_url"-->
+<!--                @click="fetchPage(vehicleCosts.next_page_url)"-->
+<!--                class="btn btn-secondary"-->
+<!--            >-->
+<!--                Następna-->
+<!--            </button>-->
+<!--        </div>-->
 
 
         <div v-if="showModal" class="modal">
@@ -65,10 +114,6 @@
                         <input v-model="form.date" type="date" id="date" class="input" required />
                     </div>
                     <div class="mb-2">
-                        <label for="description">Opis</label>
-                        <textarea v-model="form.description" id="description" class="input"></textarea>
-                    </div>
-                    <div class="mb-2">
                         <label for="amount_gross">Kwota Brutto</label>
                         <input v-model.number="form.amount_gross" @input="calculateNetAmount" type="number" step="0.01" id="amount_gross" class="input" required />
                     </div>
@@ -88,6 +133,10 @@
                         <label for="invoice_path">Dodaj Fakturę (PDF, JPG, PNG)</label>
                         <input @change="handleFileUpload" type="file" id="invoice_path" class="input" accept=".pdf,.jpg,.png" />
                     </div>
+                    <div class="mb-2">
+                        <label for="description">Opis</label>
+                        <textarea v-model="form.description" id="description" class="input"></textarea>
+                    </div>
                     <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Zaktualizuj' : 'Dodaj' }}</button>
                     <button @click="closeModal" type="button" class="btn">Anuluj</button>
                 </form>
@@ -98,7 +147,7 @@
 
 <script setup>
 import {ref} from 'vue';
-import {usePage, useForm} from '@inertiajs/vue3';
+import {usePage, useForm, router} from '@inertiajs/vue3';
 import axios from 'axios';
 import Layout from "@/Pages/Layout.vue";
 
@@ -108,6 +157,10 @@ const vehicles = ref(props.vehicles || []);
 const costTypes = ref(props.costTypes || []);
 const showModal = ref(false);
 const isEditMode = ref(false);
+const filterStartDate = ref('');
+const filterEndDate = ref('');
+const filterVehicleIds = ref([]);
+const filterCostTypeIds = ref([]);
 
 const form = useForm({
     vehicle_id: '',
@@ -120,8 +173,39 @@ const form = useForm({
     vat_amount: '',
 });
 
+// const fetchPage = (url) => {
+//     axios.get(url)
+//         .then(response => {
+//             vehicleCosts.value = response.data.vehicleCosts;
+//         })
+//         .catch(console.error);
+// };
+
+const applyFilters = () => {
+    axios.get(route('vehicle-costs.index'), {
+        params: {
+            start_date: filterStartDate.value,
+            end_date: filterEndDate.value,
+            vehicle_ids: filterVehicleIds.value,
+            cost_type_ids: filterCostTypeIds.value,
+        }
+    })
+        .then(response => {
+            vehicleCosts.value = response.data.vehicleCosts;
+        })
+        .catch(console.error);
+};
+
+const resetFilters = () => {
+    filterStartDate.value = '';
+    filterEndDate.value = '';
+    filterVehicleIds.value = [];
+    filterCostTypeIds.value = [];
+    applyFilters();
+};
+
 const previewInvoice = (path) => {
-    const fullPath = `/${path}`;
+    const fullPath = `/storage/invoices/${path}`;
     window.open(fullPath, '_blank');
 };
 
@@ -144,6 +228,16 @@ const calculateNetAmount = () => {
         form.amount_net = 0;
         form.vat_amount = 0;
     }
+};
+
+const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString.split(' ')[0]);
+    return date.toLocaleDateString('pl-PL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
 };
 
 const handleFileUpload = (event) => {
@@ -174,14 +268,23 @@ const closeModal = () => {
 
 const submitForm = () => {
     if (isEditMode.value) {
-        console.log(form)
-        axios.post(`/vehicle-costs/${form.cost_id}`, form, {
+        const formData = new FormData();
+
+        for (const key in form) {
+            formData.append(key, form[key]);
+        }
+
+        formData.append('_method', 'PUT');
+
+        axios.post(`/vehicle-costs/${form.cost_id}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             }
         })
             .then(() => {
-                alert('Koszt został zaktualizowany.');
+                router.visit(route('vehicle-costs.index'), {
+                    preserveScroll: true
+                });
                 closeModal();
             })
             .catch(console.error);
@@ -192,7 +295,9 @@ const submitForm = () => {
             }
         })
             .then(() => {
-                alert('Koszt został dodany.');
+                router.visit(route('vehicle-costs.index'), {
+                    preserveScroll: true
+                });
                 closeModal();
             })
             .catch(console.error);
@@ -202,7 +307,9 @@ const deleteCost = (id) => {
     if (confirm('Czy na pewno chcesz usunąć ten koszt?')) {
         axios.delete(`/vehicle-costs/${id}`)
             .then(() => {
-                alert('Koszt został usunięty.');
+                router.visit(route('vehicle-costs.index'), {
+                    preserveScroll: true
+                });
             })
             .catch(console.error);
     }

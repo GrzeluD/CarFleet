@@ -1,4 +1,4 @@
-<?php
+s<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('vehicle_mileage', function (Blueprint $table) {
+        Schema::create('vehicle_mileages', function (Blueprint $table) {
             $table->id('mileage_id');
             $table->unsignedBigInteger('vehicle_id');
             $table->unsignedBigInteger('user_id');
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vehicle_mileage');
+        Schema::dropIfExists('vehicle_mileages');
     }
 };

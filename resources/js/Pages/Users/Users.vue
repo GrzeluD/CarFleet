@@ -6,7 +6,6 @@
         <table class="w-full border-collapse border">
             <thead>
             <tr>
-                <th class="border p-2">ID</th>
                 <th class="border p-2">Nazwa</th>
                 <th class="border p-2">E-mail</th>
                 <th class="border p-2">Rola</th>
@@ -15,7 +14,6 @@
             </thead>
             <tbody>
             <tr v-for="user in users" :key="user.id">
-                <td class="border p-2">{{ user.id }}</td>
                 <td class="border p-2">{{ user.name }}</td>
                 <td class="border p-2">{{ user.email }}</td>
                 <td class="border p-2">{{ user.role }}</td>

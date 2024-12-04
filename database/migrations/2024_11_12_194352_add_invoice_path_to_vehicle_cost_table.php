@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('vehicle_cost', function (Blueprint $table) {
-            $table->string('invoice_path')->nullable()->after('vat_amount');
-        });
+        if (!Schema::hasColumn('vehicle_costs', 'invoice_path')) {
+            Schema::table('vehicle_costs', function (Blueprint $table) {
+                $table->string('invoice_path')->nullable()->after('vat_amount');
+            });
+        }
     }
 
     /**
@@ -21,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('vehicle_cost', function (Blueprint $table) {
+        Schema::table('vehicle_costs', function (Blueprint $table) {
             $table->dropColumn('invoice_path');
         });
     }

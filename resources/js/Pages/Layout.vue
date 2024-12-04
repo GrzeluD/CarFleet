@@ -14,8 +14,11 @@
                                 <NavLink :href="route('vehicles.index')" :active="route().current('vehicles.index')">
                                     Lista pojazdów
                                 </NavLink>
+                                <NavLink :href="route('vehicle-mileages.index')" :active="route().current('vehicle-mileages.index')">
+                                    Ewidencja przebiegu
+                                </NavLink>
                                 <NavLink :href="route('vehicle-costs.index')" :active="route().current('vehicle-costs.index')">
-                                    Lista kosztów
+                                    Ewidencja kosztów
                                 </NavLink>
                                 <NavLink :href="route('cost-types.index')" :active="route().current('cost-types.index')">
                                     Rodzaje kosztów
@@ -27,6 +30,7 @@
                         </div>
 
                         <div class="hidden sm:flex sm:items-center sm:ms-6">
+                            <Notifications></Notifications>
                             <div class="ms-3 relative">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
@@ -99,8 +103,11 @@
                             <ResponsiveNavLink :href="route('vehicles.index')" :active="route().current('vehicles.index')">
                                 Lista pojazdów
                             </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('vehicle-mileages.index')" :active="route().current('vehicle-mileages.index')">
+                                Ewidencja przebiegu
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('vehicle-costs.index')" :active="route().current('vehicle-costs.index')">
-                                Lista kosztów
+                                Ewidencja kosztów
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('cost-types.index')" :active="route().current('cost-types.index')">
                                 Rodzaje kosztów
@@ -144,6 +151,7 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
+import Notifications from "@/Components/Notifications.vue";
 
 const showingNavigationDropdown = ref(false);
 </script>

@@ -4,6 +4,15 @@
             <h1 class="text-xl">Lista pojazdów</h1>
         </template>
 
+        <div class="mb-4">
+            <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Szukaj pojazdu..."
+                class="input w-full"
+            />
+        </div>
+
         <button @click="openModal(false)" class="btn btn-primary mb-2">Dodaj Pojazd</button>
 
         <table class="w-full border-collapse border">
@@ -16,7 +25,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="vehicle in vehicles" :key="vehicle.id">
+            <tr v-for="vehicle in filteredVehicles" :key="vehicle.id">
                 <td class="border p-2">{{ vehicle.brand }}</td>
                 <td class="border p-2">{{ vehicle.model }}</td>
                 <td class="border p-2">{{ vehicle.production_year }}</td>
@@ -75,12 +84,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {computed, ref} from 'vue';
 import { usePage, useForm, router } from '@inertiajs/vue3';
 import Layout from "@/Pages/Layout.vue";
 
 const { props } = usePage();
 const vehicles = ref(props.vehicles || []);
+const searchQuery = ref('');
 const showModal = ref(false);
 const isEditMode = ref(false);
 const form = useForm({
@@ -91,6 +101,17 @@ const form = useForm({
     license_plate: '',
     insurance_expiry: '',
     inspection_due: '',
+});
+
+const filteredVehicles = computed(() => {
+    if (!searchQuery.value) {
+        return vehicles.value;
+    }
+    return vehicles.value.filter(vehicle =>
+        vehicle.brand.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        vehicle.model.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        vehicle.license_plate.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
 });
 
 const formatDate = (dateString) => {

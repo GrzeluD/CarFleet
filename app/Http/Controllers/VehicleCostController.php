@@ -11,9 +11,31 @@ use Inertia\Inertia;
 
 class VehicleCostController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $vehicleCosts = VehicleCost::all();
+        $query = VehicleCost::query();
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('date', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('date', '<=', $request->end_date);
+        }
+        if ($request->filled('vehicle_ids')) {
+            $query->whereIn('vehicle_id', $request->vehicle_ids);
+        }
+        if ($request->filled('cost_type_ids')) {
+            $query->whereIn('cost_type_id', $request->cost_type_ids);
+        }
+
+        $vehicleCosts = $query->get();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'vehicleCosts' => $vehicleCosts,
+            ]);
+        }
+
         $vehicles = Vehicle::all();
         $costTypes = CostType::all();
 
@@ -43,7 +65,7 @@ class VehicleCostController extends Controller
             $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('public/invoices', $filename);
 
-            $validatedData['invoice_path'] = str_replace('public/', 'storage/', $path);
+            $validatedData['invoice_path'] = $filename;
         }
 
         VehicleCost::create($validatedData);
@@ -55,8 +77,6 @@ class VehicleCostController extends Controller
 
     public function update(Request $request, string $id)
     {
-        dd($request->all());
-
         $validatedData = $request->validate([
             'vehicle_id' => 'required|exists:vehicles,vehicle_id',
             'cost_type_id' => 'required|exists:cost_types,cost_type_id',
@@ -76,10 +96,10 @@ class VehicleCostController extends Controller
             $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('public/invoices', $filename);
 
-            $validatedData['invoice_path'] = str_replace('public/', 'storage/', $path);
+            $validatedData['invoice_path'] = $filename;
 
             if ($vehicleCost->invoice_path) {
-                $oldFilePath = str_replace('storage/', 'public/', $vehicleCost->invoice_path);
+                $oldFilePath = 'public/invoices/' . $vehicleCost->invoice_path;
                 if (Storage::exists($oldFilePath)) {
                     Storage::delete($oldFilePath);
                 }
@@ -96,10 +116,21 @@ class VehicleCostController extends Controller
         ]);
     }
 
-
-
     public function destroy(string $id)
     {
-        //
+        $vehicleCost = VehicleCost::findOrFail($id);
+
+        if ($vehicleCost->invoice_path) {
+            $filePath = 'public/invoices/' . $vehicleCost->invoice_path;
+            if (Storage::exists($filePath)) {
+                Storage::delete($filePath);
+            }
+        }
+
+        $vehicleCost->delete();
+
+        return response()->json([
+            'message' => 'Koszt został usunięty.',
+        ], 200);
     }
 }

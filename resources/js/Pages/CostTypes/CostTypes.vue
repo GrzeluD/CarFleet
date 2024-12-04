@@ -3,6 +3,15 @@
         <template #header>
             <h1 class="text-xl">Rodzaje kosztów</h1>
         </template>
+        <div class="mb-4">
+            <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Szukaj pojazdu..."
+                class="input w-full"
+            />
+        </div>
+
         <button @click="openModal(false)" class="btn btn-primary mb-2">Dodaj koszt</button>
 
         <table class="w-full border-collapse border">
@@ -13,7 +22,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="costType in costTypes" :key="costType.id">
+            <tr v-for="costType in filteredTypes" :key="costType.id">
                 <td class="border p-2">{{ costType.cost_type_name }}</td>
                 <td class="border p-2">
                     <button @click="openModal(true, costType)" class="btn btn-sm btn-warning">Edytuj</button>
@@ -41,21 +50,25 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {computed, ref} from 'vue';
 import { usePage, useForm, router } from '@inertiajs/vue3';
 import Layout from "@/Pages/Layout.vue";
 
 const { props } = usePage();
 const costTypes = ref(props.costTypes || []);
+const searchQuery = ref('');
 const showModal = ref(false);
 const isEditMode = ref(false);
 const form = useForm({
     cost_type_name: '',
 });
 
-const formatDate = (dateString) => {
-    return dateString.split(' ')[0];
-};
+const filteredTypes = computed(() => {
+    if (!searchQuery.value) {
+        return costTypes.value;
+    }
+    return costTypes.value.filter(costType => costType.cost_type_name.toLowerCase().includes(searchQuery.value.toLowerCase()));
+});
 
 const openModal = (editMode, costType = null) => {
     isEditMode.value = editMode;

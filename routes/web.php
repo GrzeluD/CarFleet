@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\CostTypeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleCostController;
+use App\Http\Controllers\VehicleMileageController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -36,6 +38,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('users', AdminUserController::class);
     Route::resource('cost-types', CostTypeController::class);
     Route::resource('vehicle-costs', VehicleCostController::class);
+    Route::resource('vehicle-mileages', VehicleMileageController::class)->except('show');
+    Route::get('/vehicle-mileages/csv', [VehicleMileageController::class, 'generateCSV'])->name('vehicle-mileages.csv');
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
 });
 
 require __DIR__.'/auth.php';

@@ -10,7 +10,7 @@ class VehicleMileage extends Model
     protected $primaryKey = 'mileage_id';
     protected $fillable = [
         'vehicle_id',
-        'driver_id',
+        'user_id',
         'date',
         'start_mileage',
         'end_mileage',
@@ -25,8 +25,8 @@ class VehicleMileage extends Model
         return $this->belongsTo(Vehicle::class, 'vehicle_id', 'vehicle_id');
     }
 
-    public function driver(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'driver_id', 'id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }
