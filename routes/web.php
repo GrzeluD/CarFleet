@@ -37,7 +37,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('vehicles', VehicleController::class);
     Route::resource('users', AdminUserController::class);
     Route::resource('cost-types', CostTypeController::class);
-    Route::resource('vehicle-costs', VehicleCostController::class);
+    Route::resource('vehicle-costs', VehicleCostController::class)->except(['show']);
+    Route::get('/vehicle-costs/pdf', [VehicleCostController::class, 'generatePdf'])->name('vehicle-costs.pdf');
     Route::resource('vehicle-mileages', VehicleMileageController::class)->except('show');
     Route::get('/vehicle-mileages/csv', [VehicleMileageController::class, 'generateCSV'])->name('vehicle-mileages.csv');
 });

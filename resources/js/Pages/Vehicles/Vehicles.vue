@@ -1,19 +1,10 @@
 <template>
     <Layout>
         <template #header>
-            <h1 class="text-xl">Lista pojazdów</h1>
+            <Heading>Lista pojazdów</Heading>
         </template>
 
-        <div class="mb-4">
-            <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Szukaj pojazdu..."
-                class="input w-full"
-            />
-        </div>
-
-        <button @click="openModal(false)" class="btn btn-primary mb-2">Dodaj Pojazd</button>
+        <TextFieldSearchBox class="max-w-[360px] w-full my-8" v-model="searchQuery" />
 
         <table class="w-full border-collapse border">
             <thead>
@@ -37,49 +28,23 @@
             </tbody>
         </table>
 
-        <div v-if="showModal" class="modal">
-            <div class="modal-content">
-                <h2>{{ isEditMode ? 'Edytuj Pojazd' : 'Dodaj Pojazd' }}</h2>
-                <form @submit.prevent="submitForm">
-                    <div class="mb-2">
-                        <label for="brand">Marka</label>
-                        <input v-model="form.brand" type="text" id="brand" class="input" required />
-                    </div>
+        <ModalWrapper modal-styles="min-w-[360px]" v-if="showModal" :top-bar-desc="isEditMode ? 'Edytuj pojazd' : 'Dodaj pojazd'" @close="closeModal">
+            <form @submit.prevent="submitForm">
+                <TextField class="mt-0 mb-4" label="Marka" id="brand" is-label-inside="true" v-model="form.brand" />
+                <TextField class="my-4" label="Model" id="model" is-label-inside="true" v-model="form.model" />
+                <TextField class="my-4" label="Vin" id="vin" is-label-inside="true" v-model="form.vin" />
+                <TextField class="my-4" label="Rok produkcji" id="production-year" is-label-inside="true" v-model="form.production_year" input-type="number" />
+                <TextField class="my-4" label="Numer rejestracyjny" id="license-plate" is-label-inside="true" v-model="form.license_plate" />
+                <TextField class="my-4" label="Data końca ubezpieczenia" id="insurance-expiry" is-label-inside="true" v-model="form.insurance_expiry" input-type="date" />
+                <TextField class="my-4" label="Data następnego przeglądu" id="inspection-due" is-label-inside="true" v-model="form.inspection_due" input-type="date"  />
 
-                    <div class="mb-2">
-                        <label for="model">Model</label>
-                        <input v-model="form.model" type="text" id="model" class="input" required />
-                    </div>
+                <button type="submit" class="button min-w-20 w-full py-2 rounded-lg flex items-center justify-center px-4 cursor-auto transition-colors cursor-pointer h-max bg-arris-btn-success xl:hover:bg-arris-btn-successHover text-arris-btn-textPrimary">
+                    {{ isEditMode ? 'Zaktualizuj' : 'Dodaj' }}
+                </button>
+            </form>
+        </ModalWrapper>
 
-                    <div class="mb-2">
-                        <label for="vin">vin</label>
-                        <input v-model="form.vin" type="text" id="vin" class="input" required />
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="production-year">Rok produkcji</label>
-                        <input v-model="form.production_year" type="text" id="production-year" class="input" required />
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="license-plate">Numer rejestracyjny</label>
-                        <input v-model="form.license_plate" type="text" id="license-plate" class="input" required />
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="insurance-expiry">Data końca ubezpieczenia</label>
-                        <input v-model="form.insurance_expiry" type="date" id="insurance-expiry" class="input" required />
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="license-plate">Data następnego przeglądu</label>
-                        <input v-model="form.inspection_due" type="date" id="license-plate" class="input" required />
-                    </div>
-                    <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Zaktualizuj' : 'Dodaj' }}</button>
-                    <button @click="closeModal" type="button" class="btn">Anuluj</button>
-                </form>
-            </div>
-        </div>
+        <Btn :is-small="true" class="w-40 mt-8" @click="openModal(false)">Dodaj pojazd</Btn>
     </Layout>
 </template>
 
@@ -87,6 +52,11 @@
 import {computed, ref} from 'vue';
 import { usePage, useForm, router } from '@inertiajs/vue3';
 import Layout from "@/Pages/Layout.vue";
+import Btn from "@/Components/Btn.vue";
+import TextField from "@/Components/inputs/TextField.vue";
+import ModalWrapper from "@/Components/modals/ModalWrapper.vue";
+import TextFieldSearchBox from "@/Components/inputs/TextFieldSearchBox.vue";
+import Heading from "@/Components/Heading.vue";
 
 const { props } = usePage();
 const vehicles = ref(props.vehicles || []);

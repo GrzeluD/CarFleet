@@ -1,5 +1,5 @@
 <template>
-    <div class="relative">
+    <div class="relative dropdown__container">
         <button @click="toggleDropdown" class="notification-icon">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11c0-3.071-1.574-5.64-4-6.326V4a1 1 0 00-2 0v.674C7.574 5.36 6 7.929 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
@@ -71,7 +71,7 @@ export default {
     font-size: 0.75rem;
 }
 
-.dropdown {
+.dropdown__container .dropdown {
     position: absolute;
     top: 2.5rem;
     right: 0;

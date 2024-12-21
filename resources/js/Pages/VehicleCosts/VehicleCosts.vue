@@ -1,7 +1,7 @@
 <template>
     <Layout>
         <template #header>
-            <h1 class="text-xl">Lista kosztów</h1>
+            <Heading>Ewidencja kosztów</Heading>
         </template>
 
         <div class="mb-4 flex space-x-4">
@@ -71,76 +71,56 @@
             </tbody>
         </table>
 
-<!--        <div class="mt-4 flex justify-center space-x-2">-->
-<!--            <button-->
-<!--                v-if="vehicleCosts.prev_page_url"-->
-<!--                @click="fetchPage(vehicleCosts.prev_page_url)"-->
-<!--                class="btn btn-secondary"-->
-<!--            >-->
-<!--                Poprzednia-->
-<!--            </button>-->
-<!--            <button-->
-<!--                v-if="vehicleCosts.next_page_url"-->
-<!--                @click="fetchPage(vehicleCosts.next_page_url)"-->
-<!--                class="btn btn-secondary"-->
-<!--            >-->
-<!--                Następna-->
-<!--            </button>-->
-<!--        </div>-->
-
-
-        <div v-if="showModal" class="modal">
-            <div class="modal-content">
-                <h2>{{ isEditMode ? 'Edytuj Koszt' : 'Dodaj Koszt' }}</h2>
-                <form @submit.prevent="submitForm" enctype="multipart/form-data">
-                    <div class="mb-2">
-                        <label for="vehicle_id">Wybierz pojazd</label>
-                        <select v-model="form.vehicle_id" id="vehicle_id" class="input" required>
+        <ModalWrapper modal-styles="min-w-[360px]" v-if="showModal" :top-bar-desc="isEditMode ? 'Edytuj wpis' : 'Dodaj wpis'" @close="closeModal">
+            <form @submit.prevent="submitForm">
+                <div class="dropdown relative h-max mb-4" :class="{'flex items-center gap-4': inline }">
+                    <div class="relative mt-1.5">
+                        <select v-model="form.vehicle_id" id="vehicle_id" class="bg-arris-inputBox-textFieldBackground border-arris-textfield-border p-2 rounded-md text-flotte-text w-full px-4 cursor-pointer h-[44px]" required>
+                            <option value="" disabled selected>Wybierz pojazd</option>
                             <option v-for="vehicle in vehicles" :key="vehicle.vehicle_id" :value="vehicle.vehicle_id">
                                 {{ vehicle.brand }} - {{ vehicle.license_plate }}
                             </option>
                         </select>
                     </div>
-                    <div class="mb-2">
-                        <label for="cost_type_id">Wybierz typ kosztu</label>
-                        <select v-model="form.cost_type_id" id="cost_type_id" class="input" required>
+                </div>
+
+                <div class="dropdown relative h-max mb-4" :class="{'flex items-center gap-4': inline }">
+                    <div class="relative mt-1.5">
+                        <select v-model="form.cost_type_id" id="cost-type-id" class="bg-arris-inputBox-textFieldBackground border-arris-textfield-border p-2 rounded-md text-flotte-text w-full px-4 cursor-pointer h-[44px]" required>
+                            <option value="" disabled selected>Wybierz rodzaj kosztu</option>
                             <option v-for="costType in costTypes" :key="costType.cost_type_id" :value="costType.cost_type_id">
                                 {{ costType.cost_type_name }}
                             </option>
                         </select>
                     </div>
-                    <div class="mb-2">
-                        <label for="date">Data</label>
-                        <input v-model="form.date" type="date" id="date" class="input" required />
+                </div>
+                <TextField class="mt-0 mb-4" label="Podaj datę ewidencji" id="date" is-label-inside="true" v-model="form.date" input-type="date" />
+
+                <div class="flex gap-4">
+
+                    <TextField class="mt-0 mb-4" label="Kwota Brutto" id="amount-gross" is-label-inside="true" v-model="form.amount_gross" input-type="number" @modify-input="calculateNetAmount" input-step="0.01" />
+                    <TextField class="mt-0 mb-4" label="Stawka VAT (%)" id="vat-rate" is-label-inside="true" v-model="form.vat_rate" input-type="number" @modify-input="calculateNetAmount" />
+                </div>
+                <div class="flex gap-4">
+                    <TextField class="mt-0 mb-4" label="Kwota Netto" id="amount-net" is-label-inside="true" v-model="form.amount_net" input-type="number" input-step="0.01" is-read-only="true" />
+                    <TextField class="mt-0 mb-4" label="Kwota VAT" id="vat-amount" is-label-inside="true" v-model="form.vat_amount" input-type="number" input-step="0.01" is-read-only="true" />
+                </div>
+                <div class="dropdown relative h-max mb-4 w-full max-w-[506px]" :class="{'flex items-center gap-4': inline }">
+                    <div class="relative mt-1.5">
+                        <input @change="handleFileUpload" accept=".pdf,.jpg,.png" id="invoice_path" class="bg-arris-inputBox-textFieldBackground border-arris-textfield-border p-2 rounded-md text-flotte-text w-full px-4 cursor-pointer h-[44px]" type="file">
                     </div>
-                    <div class="mb-2">
-                        <label for="amount_gross">Kwota Brutto</label>
-                        <input v-model.number="form.amount_gross" @input="calculateNetAmount" type="number" step="0.01" id="amount_gross" class="input" required />
-                    </div>
-                    <div class="mb-2">
-                        <label for="vat_rate">Stawka VAT (%)</label>
-                        <input v-model.number="form.vat_rate" @input="calculateNetAmount" type="number" step="0.01" id="vat_rate" class="input" required />
-                    </div>
-                    <div class="mb-2">
-                        <label for="amount_net">Kwota Netto</label>
-                        <input v-model="form.amount_net" type="number" step="0.01" id="amount_net" class="input" readonly />
-                    </div>
-                    <div class="mb-2">
-                        <label for="vat_amount">Kwota VAT</label>
-                        <input v-model="form.vat_amount" type="number" step="0.01" id="vat_amount" class="input" readonly />
-                    </div>
-                    <div class="mb-2">
-                        <label for="invoice_path">Dodaj Fakturę (PDF, JPG, PNG)</label>
-                        <input @change="handleFileUpload" type="file" id="invoice_path" class="input" accept=".pdf,.jpg,.png" />
-                    </div>
-                    <div class="mb-2">
-                        <label for="description">Opis</label>
-                        <textarea v-model="form.description" id="description" class="input"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Zaktualizuj' : 'Dodaj' }}</button>
-                    <button @click="closeModal" type="button" class="btn">Anuluj</button>
-                </form>
-            </div>
+                </div>
+                <TextArea v-model="form.description" class="mt-0 mb-4" label="Opis"></TextArea>
+
+                <button type="submit" class="button min-w-20 w-full py-2 rounded-lg flex items-center justify-center px-4 cursor-auto transition-colors cursor-pointer h-max bg-arris-btn-success xl:hover:bg-arris-btn-successHover text-arris-btn-textPrimary">
+                    {{ isEditMode ? 'Zaktualizuj' : 'Dodaj' }}
+                </button>
+            </form>
+        </ModalWrapper>
+
+        <div class="flex justify-between">
+            <Btn :is-small="true" class="w-52 mt-8" @click="openModal(false)">Dodaj ewidencje przebiegu</Btn>
+            <Btn btn-type="secondary" :is-small="true" class="w-52 mt-8" @click="downloadPDF">Pobierz raport PDF</Btn>
         </div>
     </Layout>
 </template>
@@ -150,6 +130,12 @@ import {ref} from 'vue';
 import {usePage, useForm, router} from '@inertiajs/vue3';
 import axios from 'axios';
 import Layout from "@/Pages/Layout.vue";
+import Heading from "@/Components/Heading.vue";
+import Btn from "@/Components/Btn.vue";
+import ModalWrapper from "@/Components/modals/ModalWrapper.vue";
+import TextField from "@/Components/inputs/TextField.vue";
+import Select from "@/Components/inputs/Select.vue";
+import TextArea from "@/Components/inputs/TextArea.vue";
 
 const {props} = usePage();
 const vehicleCosts = ref(props.vehicleCosts || []);
@@ -172,14 +158,6 @@ const form = useForm({
     amount_net: '',
     vat_amount: '',
 });
-
-// const fetchPage = (url) => {
-//     axios.get(url)
-//         .then(response => {
-//             vehicleCosts.value = response.data.vehicleCosts;
-//         })
-//         .catch(console.error);
-// };
 
 const applyFilters = () => {
     axios.get(route('vehicle-costs.index'), {
@@ -221,15 +199,13 @@ const getCostTypeName = (costTypeId) => {
 
 const calculateNetAmount = () => {
     if (form.amount_gross && form.vat_rate) {
-        const vatMultiplier = 1 + form.vat_rate / 100;
-        form.amount_net = (form.amount_gross / vatMultiplier).toFixed(2);
+        form.amount_net = (form.amount_gross / (1 + form.vat_rate / 100)).toFixed(2);
         form.vat_amount = (form.amount_gross - form.amount_net).toFixed(2);
     } else {
         form.amount_net = 0;
         form.vat_amount = 0;
     }
 };
-
 const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString.split(' ')[0]);
@@ -314,6 +290,23 @@ const deleteCost = (id) => {
             .catch(console.error);
     }
 };
+
+const downloadPDF = () => {
+    const params = new URLSearchParams();
+
+    if (filterStartDate.value) params.append('start_date', filterStartDate.value);
+    if (filterEndDate.value) params.append('end_date', filterEndDate.value);
+
+    if (filterVehicleIds.value.length > 0) {
+        filterVehicleIds.value.forEach(id => params.append('vehicle_ids[]', id));
+    }
+
+    if (filterCostTypeIds.value.length > 0) {
+        filterCostTypeIds.value.forEach(id => params.append('cost_type_ids[]', id));
+    }
+
+    window.location.href = `/vehicle-costs/pdf?${params.toString()}`;
+}
 </script>
 
 <style>
@@ -334,5 +327,12 @@ const deleteCost = (id) => {
     padding: 20px;
     border-radius: 5px;
     width: 500px;
+}
+
+input[type=file]::file-selector-button {
+    border: none;
+    background: #9fcdff;
+    border-radius: 4px;
+    padding: 4px 4px;
 }
 </style>

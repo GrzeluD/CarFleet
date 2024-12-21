@@ -1,16 +1,10 @@
 <template>
     <Layout>
         <template #header>
-            <h1 class="text-xl">Rodzaje kosztów</h1>
+            <Heading>Rodzaje kosztów</Heading>
         </template>
-        <div class="mb-4">
-            <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Szukaj pojazdu..."
-                class="input w-full"
-            />
-        </div>
+
+        <TextFieldSearchBox class="max-w-[360px] w-full my-8" v-model="searchQuery" />
 
         <button @click="openModal(false)" class="btn btn-primary mb-2">Dodaj koszt</button>
 
@@ -32,20 +26,14 @@
             </tbody>
         </table>
 
-        <div v-if="showModal" class="modal">
-            <div class="modal-content">
-                <h2>{{ isEditMode ? 'Edytuj ' : 'Dodaj koszt' }}</h2>
-                <form @submit.prevent="submitForm">
-                    <div class="mb-2">
-                        <label for="brand">Nazwa kosztu</label>
-                        <input v-model="form.cost_type_name" type="text" id="brand" class="input" required />
-                    </div>
+        <ModalWrapper modal-styles="min-w-[360px]" v-if="showModal" :top-bar-desc="isEditMode ? 'Edytuj koszt' : 'Dodaj koszt'" @close="closeModal">
+            <form @submit.prevent="submitForm">
+                <TextField class="mt-0 mb-4" label="Nazwa kosztu" id="cost-type-name" is-label-inside="true" v-model="form.cost_type_name" />
+                <button type="submit" class="button min-w-20 w-full py-2 rounded-lg flex items-center justify-center px-4 cursor-auto transition-colors cursor-pointer h-max bg-arris-btn-success xl:hover:bg-arris-btn-successHover text-arris-btn-textPrimary">{{ isEditMode ? 'Zaktualizuj' : 'Dodaj' }}</button>
+            </form>
+        </ModalWrapper>
 
-                    <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Zaktualizuj' : 'Dodaj' }}</button>
-                    <button @click="closeModal" type="button" class="btn">Anuluj</button>
-                </form>
-            </div>
-        </div>
+        <Btn :is-small="true" class="w-40 mt-8" @click="openModal(false)">Dodaj koszt</Btn>
     </Layout>
 </template>
 
@@ -53,6 +41,11 @@
 import {computed, ref} from 'vue';
 import { usePage, useForm, router } from '@inertiajs/vue3';
 import Layout from "@/Pages/Layout.vue";
+import Heading from "@/Components/Heading.vue";
+import Btn from "@/Components/Btn.vue";
+import ModalWrapper from "@/Components/modals/ModalWrapper.vue";
+import TextField from "@/Components/inputs/TextField.vue";
+import TextFieldSearchBox from "@/Components/inputs/TextFieldSearchBox.vue";
 
 const { props } = usePage();
 const costTypes = ref(props.costTypes || []);

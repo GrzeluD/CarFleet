@@ -1,7 +1,7 @@
 <template>
     <Layout>
         <template #header>
-            <h1 class="text-xl">Ewidencja Przebiegów</h1>
+            <Heading>Ewidencja przebiegu</Heading>
         </template>
 
         <div class="mb-4 flex space-x-4">
@@ -25,8 +25,6 @@
             <button @click="applyFilters" class="btn btn-primary">Filtruj</button>
             <button @click="resetFilters" class="btn btn-secondary">Resetuj</button>
         </div>
-
-        <button @click="openModal(false)" class="btn btn-primary mb-2">Dodaj Przebieg</button>
 
         <table class="w-full border-collapse border">
             <thead>
@@ -58,60 +56,53 @@
             </tbody>
         </table>
 
-        <button @click="generateCSV" class="btn btn-secondary mt-4">Generuj CSV</button>
-
-        <div v-if="showModal" class="modal">
-            <div class="modal-content">
-                <h2>{{ isEditMode ? 'Edytuj Przebieg' : 'Dodaj Przebieg' }}</h2>
-                <form @submit.prevent="submitForm">
-                    <div class="mb-2">
-                        <label for="vehicle_id">Wybierz pojazd</label>
-                        <select v-model="form.vehicle_id" id="vehicle_id" class="input" required>
+        <ModalWrapper modal-styles="min-w-[360px]" v-if="showModal" :top-bar-desc="isEditMode ? 'Edytuj wpis' : 'Dodaj wpis'" @close="closeModal">
+            <form @submit.prevent="submitForm">
+                <div class="dropdown relative h-max mb-4" :class="{'flex items-center gap-4': inline }">
+                    <div class="relative mt-1.5">
+                        <select v-model="form.vehicle_id" id="vehicle_id" class="bg-arris-inputBox-textFieldBackground border-arris-textfield-border p-2 rounded-md text-flotte-text w-full px-4 cursor-pointer h-[44px]" required>
+                            <option value="" disabled selected>Wybierz pojazd</option>
                             <option v-for="vehicle in vehicles" :key="vehicle.vehicle_id" :value="vehicle.vehicle_id">
                                 {{ vehicle.brand }} - {{ vehicle.license_plate }}
                             </option>
                         </select>
                     </div>
-                    <div class="mb-2">
-                        <label for="driver_id">Wybierz kierowcę</label>
-                        <select v-model="form.user_id" id="driver_id" class="input" required>
+                </div>
+
+                <div class="dropdown relative h-max mb-4" :class="{'flex items-center gap-4': inline }">
+                    <div class="relative mt-1.5">
+                        <select v-model="form.user_id" id="cost-type-id" class="bg-arris-inputBox-textFieldBackground border-arris-textfield-border p-2 rounded-md text-flotte-text w-full px-4 cursor-pointer h-[44px]" required>
+                            <option value="" disabled selected>Wybierz kierowcę</option>
                             <option v-for="driver in drivers" :key="driver.id" :value="driver.id">
                                 {{ driver.name }}
                             </option>
                         </select>
                     </div>
-                    <div class="mb-2">
-                        <label for="date">Data</label>
-                        <input v-model="form.date" type="date" id="date" class="input" required />
-                    </div>
-                    <div class="mb-2">
-                        <label for="start_mileage">Początkowy przebieg</label>
-                        <input v-model.number="form.start_mileage" @input="calculateDistance" type="number" id="start_mileage" class="input" required />
-                    </div>
-                    <div class="mb-2">
-                        <label for="end_mileage">Końcowy przebieg</label>
-                        <input v-model.number="form.end_mileage" @input="calculateDistance" type="number" id="end_mileage" class="input" required />
-                    </div>
-                    <div class="mb-2">
-                        <label for="location_start">Miejsce początkowe</label>
-                        <input v-model="form.location_start" type="text" id="location_start" class="input" required />
-                    </div>
-                    <div class="mb-2">
-                        <label for="location_end">Miejsce końcowe</label>
-                        <input v-model="form.location_end" type="text" id="location_end" class="input" required />
-                    </div>
-                    <div class="mb-2">
-                        <label for="route_description">Opis trasy</label>
-                        <textarea v-model="form.route_description" id="route_description" class="input"></textarea>
-                    </div>
-                    <div class="mb-2">
-                        <label for="distance_traveled">Dystans (km)</label>
-                        <input v-model="form.distance_traveled" type="number" id="distance_traveled" class="input" readonly />
-                    </div>
-                    <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Zaktualizuj' : 'Dodaj' }}</button>
-                    <button @click="closeModal" type="button" class="btn">Anuluj</button>
-                </form>
-            </div>
+                </div>
+
+                <TextField class="mt-0 mb-4" label="Podaj datę ewidencji" id="date" is-label-inside="true" v-model="form.date" input-type="date" />
+
+                <div class="flex gap-4">
+                    <TextField class="mt-0 mb-4" label="Początkowy przebieg" id="start-mileage" is-label-inside="true" v-model="form.start_mileage" input-type="number" @modify-input="calculateDistance" />
+                    <TextField class="mt-0 mb-4" label="Końcowy przebieg" id="end-mileage" is-label-inside="true" v-model="form.end_mileage" input-type="number" @modify-input="calculateDistance" />
+                </div>
+                <div class="flex gap-4">
+                    <TextField class="mt-0 mb-4" label="Dystans (km)" id="distance-traveled" is-label-inside="true" v-model="form.distance_traveled" input-type="number" @modify-input="calculateDistance" />
+                </div>
+
+                <TextField class="mt-0 mb-4" label="Miejsce początkowe" id="location-start" is-label-inside="true" v-model="form.location_start" />
+                <TextField class="mt-0 mb-4" label="Miejsce końcowe" id="location-end" is-label-inside="true" v-model="form.location_end" />
+                <TextArea v-model="form.route_description" class="mt-0 mb-4" label="Opis trasy"></TextArea>
+
+                <button type="submit" class="button min-w-20 w-full py-2 rounded-lg flex items-center justify-center px-4 cursor-auto transition-colors cursor-pointer h-max bg-arris-btn-success xl:hover:bg-arris-btn-successHover text-arris-btn-textPrimary">
+                    {{ isEditMode ? 'Zaktualizuj' : 'Dodaj' }}
+                </button>
+            </form>
+        </ModalWrapper>
+
+        <div class="flex justify-between">
+            <Btn :is-small="true" class="w-52 mt-8" @click="openModal(false)">Dodaj ewidencje przebiegu</Btn>
+            <Btn btn-type="secondary" :is-small="true" class="w-52 mt-8" @click="generateCSV">Generuj CSV</Btn>
         </div>
     </Layout>
 </template>
@@ -120,6 +111,12 @@
 import {computed, ref} from 'vue';
 import {usePage, useForm, router} from '@inertiajs/vue3';
 import Layout from '@/Pages/Layout.vue';
+import Heading from "@/Components/Heading.vue";
+import Btn from "@/Components/Btn.vue";
+import TextField from "@/Components/inputs/TextField.vue";
+import TextArea from "@/Components/inputs/TextArea.vue";
+import ModalWrapper from "@/Components/modals/ModalWrapper.vue";
+import Select from "@/Components/inputs/Select.vue";
 
 const { props } = usePage();
 const vehicleMileages = ref(props.vehicleMileages || []);

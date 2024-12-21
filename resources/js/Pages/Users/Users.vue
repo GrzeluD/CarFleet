@@ -1,7 +1,10 @@
 <template>
     <Layout>
-        <template #header><h1 class="text-xl">Lista Użytkowników</h1></template>
-        <button @click="openModal(false)" class="btn btn-primary mb-2">Dodaj Użytkownika</button>
+        <template #header>
+            <Heading>Lista użytkowników</Heading>
+        </template>
+
+        <TextFieldSearchBox class="max-w-[360px] w-full my-8" v-model="searchQuery" />
 
         <table class="w-full border-collapse border">
             <thead>
@@ -13,7 +16,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="user in users" :key="user.id">
+            <tr v-for="user in filteredUsers" :key="user.id">
                 <td class="border p-2">{{ user.name }}</td>
                 <td class="border p-2">{{ user.email }}</td>
                 <td class="border p-2">{{ user.role }}</td>
@@ -25,50 +28,49 @@
             </tbody>
         </table>
 
-        <div v-if="showModal" class="modal">
-            <div class="modal-content">
-                <h2>{{ isEditMode ? 'Edytuj Użytkownika' : 'Dodaj Użytkownika' }}</h2>
-                <form @submit.prevent="submitForm">
-                    <div class="mb-2">
-                        <label for="name">Nazwa</label>
-                        <input v-model="form.name" type="text" id="name" class="input" required />
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="email">E-mail</label>
-                        <input v-model="form.email" type="email" id="email" class="input" required />
-                    </div>
-
-                    <div class="mb-2">
-                        <label for="role">Rola</label>
-                        <select v-model="form.role" id="role" class="input" required>
+        <ModalWrapper modal-styles="min-w-[360px]" v-if="showModal" :top-bar-desc="isEditMode ? 'Edytuj użytkownika' : 'Dodaj użytkownika'" @close="closeModal">
+            <form @submit.prevent="submitForm">
+                <TextField class="mt-0 mb-4" label="Imię i nazwisko" id="name" is-label-inside="true" v-model="form.name" />
+                <TextField class="mt-0 mb-4" label="Email" id="email" is-label-inside="true" v-model="form.email" />
+                <div class="dropdown relative h-max mb-4" :class="{'flex items-center gap-4': inline }">
+                    <div class="relative mt-1.5">
+                        <select v-model="form.role" id="role" class="bg-arris-inputBox-textFieldBackground border-arris-textfield-border p-2 rounded-md text-flotte-text w-full px-4 cursor-pointer h-[44px]" required>
+                            <option value="" disabled selected>Wybierz role</option>
                             <option value="admin">Admin</option>
                             <option value="driver">Kierowca</option>
                         </select>
                     </div>
+                </div>
+                <button type="submit" class="button min-w-20 w-full py-2 rounded-lg flex items-center justify-center px-4 cursor-auto transition-colors cursor-pointer h-max bg-arris-btn-success xl:hover:bg-arris-btn-successHover text-arris-btn-textPrimary">{{ isEditMode ? 'Zaktualizuj' : 'Dodaj' }}</button>
+            </form>
+        </ModalWrapper>
 
-                    <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Zaktualizuj' : 'Dodaj' }}</button>
-                    <button @click="closeModal" type="button" class="btn">Anuluj</button>
-                </form>
-            </div>
-        </div>
+        <Btn :is-small="true" class="w-40 mt-8" @click="openModal(false)">Dodaj Użytkownika</Btn>
     </Layout>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {computed, ref} from 'vue';
 import { usePage, useForm, router } from '@inertiajs/vue3';
 import Layout from "@/Pages/Layout.vue";
+import Heading from "@/Components/Heading.vue";
+import TextFieldSearchBox from "@/Components/inputs/TextFieldSearchBox.vue";
+import Btn from "@/Components/Btn.vue";
+import ModalWrapper from "@/Components/modals/ModalWrapper.vue";
+import TextField from "@/Components/inputs/TextField.vue";
+import Select from "@/Components/inputs/Select.vue";
 
 const { props } = usePage();
 const users = ref(props.users || []);
 const showModal = ref(false);
 const isEditMode = ref(false);
+const searchQuery = ref('');
 const form = useForm({
     name: '',
     email: '',
     role: '',
 });
+const selectOptions = ["Admin","Kierowca"];
 
 const openModal = (editMode, user = null) => {
     isEditMode.value = editMode;
@@ -76,12 +78,23 @@ const openModal = (editMode, user = null) => {
         form.name = user.name;
         form.email = user.email;
         form.role = user.role;
-        form.id = user.id; // Ustawianie ID przy edycji
+        form.id = user.id;
     } else {
         form.reset();
     }
     showModal.value = true;
 };
+
+const filteredUsers = computed(() => {
+    if (!searchQuery.value) {
+        return users.value;
+    }
+    return users.value.filter(user =>
+        user.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        user.role.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
+});
 
 const closeModal = () => {
     showModal.value = false;

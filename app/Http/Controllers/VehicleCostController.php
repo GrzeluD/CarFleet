@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CostType;
 use App\Models\Vehicle;
 use App\Models\VehicleCost;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -132,5 +133,34 @@ class VehicleCostController extends Controller
         return response()->json([
             'message' => 'Koszt został usunięty.',
         ], 200);
+    }
+
+    public function generatePdf(Request $request)
+    {
+        $query = VehicleCost::query();
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('date', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('date', '<=', $request->end_date);
+        }
+        if ($request->filled('vehicle_ids')) {
+            $query->whereIn('vehicle_id', $request->vehicle_ids);
+        }
+        if ($request->filled('cost_type_ids')) {
+            $query->whereIn('cost_type_id', $request->cost_type_ids);
+        }
+
+        $vehicleCosts = $query->get();
+
+        $data = [
+            'title' => 'Raport kosztów pojazdów',
+            'date' => now()->format('Y-m-d'),
+            'vehicleCosts' => $vehicleCosts,
+        ];
+
+        $pdf = Pdf::loadView('pdf.vehicle_cost_report', $data)->setPaper('a4', 'landscape');
+        return $pdf->stream('vehicle_cost_report.pdf');
     }
 }
