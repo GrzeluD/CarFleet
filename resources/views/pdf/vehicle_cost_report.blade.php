@@ -27,7 +27,7 @@
     <thead>
     <tr>
         <th>Pojazd</th>
-        <th>Typ kosztu</th>
+{{--        <th>Typ kosztu</th>--}}
         <th>Kwota brutto</th>
         <th>Data</th>
         <th>Opis</th>
@@ -37,7 +37,7 @@
     @foreach($vehicleCosts as $cost)
         <tr>
             <td>{{ $cost->vehicle->brand }} - {{ $cost->vehicle->license_plate }}</td>
-            <td>{{ $cost->costType->name }}</td>
+{{--            <td>{{ $cost->costType->name }}</td>--}}
             <td>{{ number_format($cost->amount_gross, 2) }} zł</td>
             <td>{{ $cost->date }}</td>
             <td>{{ $cost->description ?? 'Brak' }}</td>

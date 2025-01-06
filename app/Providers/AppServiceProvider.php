@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
             User::create([
                 'name' => 'Default Admin',
                 'email' => 'admin@example.com',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('admin123'),
                 'role' => 'admin',
             ]);
         }

@@ -27,7 +27,6 @@ class InspectionDue3DaysNotification extends Notification
     {
         return (new MailMessage)
             ->line("Za 3 dni upływa termin przeglądu pojazdu {$this->vehicle->brand} - {$this->vehicle->license_plate}.")
-            ->action('Zobacz szczegóły', url('/vehicles/' . $this->vehicle->vehicle_id))
             ->line('Zadbaj o terminowy przegląd, aby uniknąć problemów.');
     }
 

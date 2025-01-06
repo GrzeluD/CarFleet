@@ -8,47 +8,60 @@
         </button>
         <div v-if="showDropdown" class="dropdown">
             <ul>
-                <li v-for="notification in notifications" :key="notification.id" class="p-2 border-b">
+                <li v-for="notification in unreadNotifications" :key="notification.id" class="p-2 border-b">
                     {{ notification.data.message }}
-                    <button @click="markAsRead(notification.id)" class="text-blue-500 hover:underline">Oznacz jako przeczytane</button>
+                    <button @click="markAsRead(notification.id)" class="text-blue-500 hover:underline">
+                        Oznacz jako przeczytane
+                    </button>
                 </li>
-                <li v-if="notifications.length === 0" class="p-2 text-gray-500">Brak powiadomień</li>
+                <li v-if="unreadNotifications.length === 0" class="p-2 text-gray-500">
+                    Brak nieprzeczytanych powiadomień
+                </li>
             </ul>
         </div>
     </div>
 </template>
 
-<script>
-import axios from 'axios';
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
 
-export default {
-    data() {
-        return {
-            notifications: [],
-            unreadCount: 0,
-            showDropdown: false,
-        };
-    },
-    methods: {
-        fetchNotifications() {
-            axios.get('/notifications').then(response => {
-                this.notifications = response.data;
-                this.unreadCount = this.notifications.filter(n => !n.read_at).length;
-            });
-        },
-        markAsRead(notificationId) {
-            axios.post(`/notifications/${notificationId}/mark-as-read`).then(() => {
-                this.fetchNotifications();
-            });
-        },
-        toggleDropdown() {
-            this.showDropdown = !this.showDropdown;
-        },
-    },
-    mounted() {
-        this.fetchNotifications();
-    },
-};
+const notifications = ref([])
+const showDropdown = ref(false)
+
+const unreadNotifications = computed(() => {
+    return notifications.value.filter(notification => !notification.read_at)
+})
+
+const unreadCount = computed(() => {
+    return unreadNotifications.value.length
+})
+
+const fetchNotifications = async () => {
+    try {
+        const response = await axios.get('/notifications')
+        notifications.value = response.data
+    } catch (error) {
+        console.error('Błąd podczas pobierania powiadomień:', error)
+    }
+}
+
+const markAsRead = async (notificationId) => {
+    try {
+        await axios.post(`/notifications/${notificationId}/mark-as-read`)
+        await fetchNotifications()
+    } catch (error) {
+        console.error('Błąd podczas oznaczania powiadomienia jako przeczytane:', error)
+    }
+}
+
+const toggleDropdown = () => {
+    showDropdown.value = !showDropdown.value
+}
+
+onMounted(() => {
+    fetchNotifications()
+})
 </script>
 
 <style>
@@ -67,8 +80,8 @@ export default {
     background-color: red;
     color: white;
     border-radius: 50%;
-    padding: 0.2em 0.4em;
-    font-size: 0.75rem;
+    padding: 0.2em 0.6em;
+    font-size: 0.5rem;
 }
 
 .dropdown__container .dropdown {

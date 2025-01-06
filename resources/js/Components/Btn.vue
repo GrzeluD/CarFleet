@@ -1,5 +1,5 @@
 <template>
-    <div class="button min-w-20 w-full py-2 rounded-lg flex items-center justify-center px-4 cursor-auto transition-colors cursor-pointer h-max"
+    <div class="button min-w-20 py-2 rounded-lg flex items-center justify-center px-4 cursor-auto transition-colors cursor-pointer h-max"
             :class="[
                 isLoader && 'pointer-events-none',
                 disabled && 'opacity-[0.7] pointer-events-none',
