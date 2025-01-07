@@ -20,11 +20,14 @@ class VehicleMileageController extends Controller
         if ($request->filled('end_date')) {
             $query->whereDate('date', '<=', $request->end_date);
         }
-        if ($request->filled('vehicle_ids')) {
-            $query->whereIn('vehicle_id', $request->vehicle_ids);
+        if ($request->filled('vehicle_id')) {
+            $query->where('vehicle_id', $request->vehicle_id);
         }
         if ($request->filled('driver_ids')) {
             $query->whereIn('driver_id', $request->driver_ids);
+        }
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
         }
 
         $vehicleMileages = $query->get();
@@ -97,6 +100,9 @@ class VehicleMileageController extends Controller
         }
         if ($request->filled('vehicle_id')) {
             $query->where('vehicle_id', $request->vehicle_id);
+        }
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
         }
 
         $mileages = $query->get();

@@ -6,25 +6,47 @@
 
         <TextFieldSearchBox class="max-w-[360px] w-full my-8" v-model="searchQuery" />
 
-        <button @click="openModal(false)" class="btn btn-primary mb-2">Dodaj koszt</button>
+        <div class="overflow-x-auto border border-gray-200 rounded-md shadow-sm bg-white">
+            <table class="w-full text-sm text-gray-600">
+                <thead>
+                <tr class="bg-white text-gray-700">
+                    <th class="p-2 font-medium text-left">Nazwa Kosztu</th>
+                    <th class="p-2 font-medium text-center">Akcje</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr
+                    v-for="costType in filteredTypes"
+                    :key="costType.id"
+                    class="hover:bg-gray-50 transition-colors border-t"
+                >
+                    <td class="p-2 whitespace-nowrap">{{ costType.cost_type_name }}</td>
+                    <td class="p-2 text-center space-x-2">
+                        <button
+                            @click="openModal(true, costType)"
+                            class="p-1 text-gray-600 hover:text-blue-500 transition"
+                            title="Edytuj"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4h2a2 2 0 012 2v.586a1 1 0 01-.293.707l-6 6a1 1 0 01-.707.293H8a2 2 0 01-2-2v-2a1 1 0 01.293-.707l6-6A1 1 0 0111 4z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7l-4 4M7 17h10" />
+                            </svg>
+                        </button>
+                        <button
+                            @click="deleteCost(costType.cost_type_id)"
+                            class="p-1 text-gray-600 hover:text-red-500 transition"
+                            title="Usuń"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-        <table class="w-full border-collapse border">
-            <thead>
-            <tr>
-                <th class="border p-2">Nazwa Kosztu</th>
-                <th class="border p-2">Akcje</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="costType in filteredTypes" :key="costType.id">
-                <td class="border p-2">{{ costType.cost_type_name }}</td>
-                <td class="border p-2">
-                    <button @click="openModal(true, costType)" class="btn btn-sm btn-warning">Edytuj</button>
-                    <button @click="deleteCost(costType.cost_type_id)" class="btn btn-sm btn-danger">Usuń</button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
 
         <ModalWrapper modal-styles="min-w-[360px]" v-if="showModal" :top-bar-desc="isEditMode ? 'Edytuj koszt' : 'Dodaj koszt'" @close="closeModal">
             <form @submit.prevent="submitForm">
@@ -109,21 +131,4 @@ const deleteCost = (id) => {
 </script>
 
 <style>
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    width: 500px;
-}
 </style>

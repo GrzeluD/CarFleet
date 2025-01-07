@@ -4,72 +4,83 @@
             <Heading>Ewidencja kosztów</Heading>
         </template>
 
-        <div class="mb-4 flex space-x-4">
-            <div>
-                <label for="filterStartDate">Od</label>
-                <input v-model="filterStartDate" type="date" id="filterStartDate" class="input" />
-            </div>
-            <div>
-                <label for="filterEndDate">Do</label>
-                <input v-model="filterEndDate" type="date" id="filterEndDate" class="input" />
-            </div>
-            <div>
-                <h3>Wybierz pojazdy:</h3>
-                <div v-for="vehicle in vehicles" :key="vehicle.vehicle_id">
-                    <label>
-                        <input type="checkbox" :value="vehicle.vehicle_id" v-model="filterVehicleIds" />
-                        {{ vehicle.brand }} - {{ vehicle.license_plate }}
-                    </label>
-                </div>
-            </div>
-
-            <div>
-                <h3>Wybierz typy kosztów:</h3>
-                <div v-for="costType in costTypes" :key="costType.cost_type_id">
-                    <label>
-                        <input type="checkbox" :value="costType.cost_type_id" v-model="filterCostTypeIds" />
-                        {{ costType.cost_type_name }}
-                    </label>
-                </div>
-            </div>
-            <button @click="applyFilters" class="btn btn-primary">Filtruj</button>
-            <button @click="resetFilters" class="btn btn-secondary">Resetuj</button>
+        <div class="mb-4 flex space-x-4 justify-center mt-8">
+            <TextField class="m-0 w-52" label="Data filtrowania od" id="date" is-label-inside="true" v-model="filterStartDate" input-type="date" />
+            <TextField class="m-0 w-52" label="Data filtrowania do" id="date" is-label-inside="true" v-model="filterEndDate" input-type="date" />
+            <FilterDropdownCosts :cost-types="costTypes" v-model="filterCostTypeIds" />
+            <FilterDropdownVehicle :vehicles="vehicles" v-model="filterVehicleIds" />
+        </div>
+        <div class="flex justify-center gap-2 mb-8">
+            <Btn :is-small="true" class="w-52" @click="applyFilters">Filtruj</Btn>
+            <Btn btn-type="warning" :is-small="true" class="w-52" @click="resetFilters">Resetuj</Btn>
         </div>
 
-        <button @click="openModal(false)" class="btn btn-primary mb-2">Dodaj Koszt</button>
+        <div class="overflow-x-auto border border-gray-200 rounded-md shadow-sm bg-white">
+            <table class="w-full text-sm text-gray-600">
+                <thead>
+                <tr class="bg-white text-gray-700">
+                    <th class="p-2 font-medium text-left">Pojazd</th>
+                    <th class="p-2 font-medium text-left">Typ Kosztu</th>
+                    <th class="p-2 font-medium text-left">Kwota Brutto</th>
+                    <th class="p-2 font-medium text-left">Kwota Netto</th>
+                    <th class="p-2 font-medium text-left">Kwota VAT</th>
+                    <th class="p-2 font-medium text-left">Data</th>
+                    <th class="p-2 font-medium text-center">Faktura</th>
+                    <th class="p-2 font-medium text-center">Akcje</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr
+                    v-for="cost in vehicleCosts"
+                    :key="cost.cost_id"
+                    class="hover:bg-gray-50 transition-colors border-t"
+                >
+                    <td class="p-2 whitespace-nowrap">{{ getVehicleName(cost.vehicle_id) }}</td>
+                    <td class="p-2 whitespace-nowrap">{{ getCostTypeName(cost.cost_type_id) }}</td>
+                    <td class="p-2">{{ Number(cost.amount_gross).toFixed(2) }} zł</td>
+                    <td class="p-2">{{ Number(cost.amount_net).toFixed(2) }} zł</td>
+                    <td class="p-2">{{ Number(cost.vat_amount).toFixed(2) }} zł</td>
+                    <td class="p-2 whitespace-nowrap">{{ formatDate(cost.date) }}</td>
+                    <td class="p-2 text-center">
+                        <button
+                            v-if="cost.invoice_path"
+                            @click="previewInvoice(cost.invoice_path)"
+                            class="p-1 text-gray-600 hover:text-blue-500 transition"
+                            title="Podgląd Faktury"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0zm-9-4v8" />
+                            </svg>
+                        </button>
+                        <span v-else class="text-gray-400 text-xs">Brak faktury</span>
+                    </td>
+                    <td class="p-2 text-center space-x-2">
+                        <button
+                            @click="openModal(true, cost)"
+                            class="p-1 text-gray-600 hover:text-blue-500 transition"
+                            title="Edytuj"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4h2a2 2 0 012 2v.586a1 1 0 01-.293.707l-6 6a1 1 0 01-.707.293H8a2 2 0 01-2-2v-2a1 1 0 01.293-.707l6-6A1 1 0 0111 4z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7l-4 4M7 17h10" />
+                            </svg>
+                        </button>
 
-        <table class="w-full border-collapse border">
-            <thead>
-            <tr>
-                <th class="border p-2">Pojazd</th>
-                <th class="border p-2">Typ Kosztu</th>
-                <th class="border p-2">Kwota Brutto</th>
-                <th class="border p-2">Data</th>
-                <th class="border p-2">Faktura</th>
-                <th class="border p-2">Akcje</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="cost in vehicleCosts" :key="cost.cost_id">
-                <td class="border p-2">
-                    {{ getVehicleName(cost.vehicle_id) }}
-                </td>
-                <td class="border p-2">
-                    {{ getCostTypeName(cost.cost_type_id) }}
-                </td>
-                <td class="border p-2">{{ Number(cost.amount_gross).toFixed(2) }} zł</td>
-                <td class="border p-2">{{ formatDate(cost.date) }}</td>
-                <td class="border p-2">
-                    <button v-if="cost.invoice_path" @click="previewInvoice(cost.invoice_path)" class="btn btn-sm btn-info">Podgląd</button>
-                    <span v-else>Brak faktury</span>
-                </td>
-                <td class="border p-2">
-                    <button @click="openModal(true, cost)" class="btn btn-sm btn-warning">Edytuj</button>
-                    <button @click="deleteCost(cost.cost_id)" class="btn btn-sm btn-danger">Usuń</button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                        <button
+                            @click="deleteCost(cost.cost_id)"
+                            class="p-1 text-gray-600 hover:text-red-500 transition"
+                            title="Usuń"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
 
         <ModalWrapper modal-styles="min-w-[360px]" v-if="showModal" :top-bar-desc="isEditMode ? 'Edytuj wpis' : 'Dodaj wpis'" @close="closeModal">
             <form @submit.prevent="submitForm">
@@ -136,6 +147,8 @@ import ModalWrapper from "@/Components/modals/ModalWrapper.vue";
 import TextField from "@/Components/inputs/TextField.vue";
 import Select from "@/Components/inputs/Select.vue";
 import TextArea from "@/Components/inputs/TextArea.vue";
+import FilterDropdownVehicle from "@/Components/FilterDropdownVehicle.vue";
+import FilterDropdownCosts from "@/Components/FilterDropdownCosts.vue";
 
 const {props} = usePage();
 const vehicleCosts = ref(props.vehicleCosts || []);
@@ -310,25 +323,6 @@ const downloadPDF = () => {
 </script>
 
 <style>
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    width: 500px;
-}
-
 input[type=file]::file-selector-button {
     border: none;
     background: #9fcdff;
