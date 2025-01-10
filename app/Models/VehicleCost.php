@@ -29,4 +29,9 @@ class VehicleCost extends Model
     {
         return $this->belongsTo(CostType::class, 'cost_type_id', 'cost_type_id');
     }
+
+    public function getCostTypeNameAttribute()
+    {
+        return $this->costType ? $this->costType->cost_type_name : null;
+    }
 }

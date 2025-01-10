@@ -152,12 +152,21 @@ class VehicleCostController extends Controller
             $query->whereIn('cost_type_id', $request->cost_type_ids);
         }
 
-        $vehicleCosts = $query->get();
+        $vehicleCosts = $query->with('costType')->get();
+
+        $totalGross = $vehicleCosts->sum('amount_gross');
+        $totalNet = $vehicleCosts->sum('amount_net');
+        $totalVat = $vehicleCosts->sum('vat_amount');
 
         $data = [
             'title' => 'Raport kosztów pojazdów',
             'date' => now()->format('Y-m-d'),
             'vehicleCosts' => $vehicleCosts,
+            'totalGross' => $totalGross,
+            'totalNet' => $totalNet,
+            'totalVat' => $totalVat,
+            'startDate' => $request->start_date,
+            'endDate' => $request->end_date
         ];
 
         $pdf = Pdf::loadView('pdf.vehicle_cost_report', $data)->setPaper('a4', 'landscape');
