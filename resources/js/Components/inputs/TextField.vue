@@ -5,7 +5,7 @@
                 :class="{'left-10': isSearchField, 'pointer-events-none': inactive, }"
                 v-if="placeholder!=='' && value==='' && !isLabelInside">{{ placeholder }}</p>
         <div class="relative" :class="[inputHeight]">
-            <input class="peer/input group border border-arris-textfield-border px-3 rounded-md text-arris-textfield-inputText w-full focus:outline-none active:outline-none focus:border-arris-textfield-activeBorder copyable-hover:hidden"
+            <input class="peer/input group border border-arris-textfield-border px-4 rounded-md text-arris-textfield-inputText w-full focus:outline-none active:outline-none focus:border-arris-textfield-activeBorder copyable-hover:hidden"
                     spellcheck="false"
                     :class="[
                         errorMessage!==undefined && errorMessage!=='' && 'error border-arris-general-error focus:outline-none',

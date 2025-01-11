@@ -3,7 +3,7 @@
         <button
             @click="toggleDropdown"
             :class="[
-                'px-4 py-2 rounded-full shadow-md border flex items-center justify-center w-40 transition-colors',
+                'px-4 py-2 rounded-full shadow-md border flex items-center justify-center w-40 transition-colors mx-auto lg:mx-0',
                 selectedValue !== ''
                     ? 'bg-arris-btn-primary xl:hover:bg-arris-btn-primaryHover text-white border-blue-500'
                     : 'bg-white xl:hover:bg-gray-50 text-gray-700 border-gray-300'

@@ -97,7 +97,7 @@
                     </div>
                 </div>
 
-                <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden absolute top-[65px] bg-white w-full">
+                <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden absolute top-[65px] bg-white w-full z-50">
                     <div class="h-full w-full scroll-auto">
                         <div class="pt-2 pb-3 space-y-1">
                             <ResponsiveNavLink :href="route('vehicles.index')" :active="route().current('vehicles.index')">

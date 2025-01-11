@@ -3,7 +3,7 @@
         <template #header>
             <Heading>Ewidencja przebiegu</Heading>
         </template>
-        <div class="mb-4 flex space-x-4 justify-center mt-8">
+        <div class="mb-4 flex justify-center mt-8 flex-wrap gap-2">
             <TextField class="m-0 w-52" label="Data filtrowania od" id="date" is-label-inside="true" v-model="filterStartDate" input-type="date" />
             <TextField class="m-0 w-52" label="Data filtrowania do" id="date" is-label-inside="true" v-model="filterEndDate" input-type="date" />
             <FilterDropdownSingleUser :users="drivers" v-model="filterUserId" />
@@ -112,9 +112,9 @@
             </form>
         </ModalWrapper>
 
-        <div class="flex justify-between">
+        <div class="flex justify-between flex-wrap">
             <Btn :is-small="true" class="w-52 mt-8" @click="openModal(false)">Dodaj ewidencje przebiegu</Btn>
-            <Btn btn-type="secondary" :is-small="true" class="w-52 mt-8" @click="generateCSV">Generuj CSV</Btn>
+            <Btn btn-type="secondary" :is-small="true" class="w-52 mt-2 lg:mt-8" @click="generateCSV">Generuj CSV</Btn>
         </div>
     </Layout>
 </template>
